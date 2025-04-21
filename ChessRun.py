@@ -3,6 +3,7 @@ from tabulate import tabulate
 from tkinter import *
 from PIL import ImageTk, Image
 
+#Prints board in command line
 def print_board(board):
     start = "\033[1;93m"
     end = "\033[0m"
@@ -20,6 +21,7 @@ def print_board(board):
     table = tabulate(rows_info, header, tablefmt="heavy_grid")
     print(table)
 
+#Select Piece
 def select_piece(piece):
     square = chess.parse_square(piece)
     piece_moves = [move for move in board.legal_moves if move.from_square == square]
@@ -29,6 +31,7 @@ def select_piece(piece):
     else:
         return 1
 
+#Asks board if move is valid
 def check_move(moveLoc, piece, prom):
     move = chess.Move.from_uci(piece + moveLoc + prom)
     if board.is_legal(move):
@@ -36,18 +39,22 @@ def check_move(moveLoc, piece, prom):
     else:
         return 1
 
+#Confirms move on board
 def move(moveLoc, piece, prom):
     move = chess.Move.from_uci(piece + moveLoc + prom)
     board.push(move)
 
+#Checks if move is En Passant
 def checkEP(piece, move):
     m = chess.Move.from_uci(piece + move +'')
     return board.is_en_passant(m)
 
+#Checks if move is Queenside Castle
 def checkQCastle(piece,move):
     m = chess.Move.from_uci(piece + move +'')
     return board.is_queenside_castling(m)
 
+#Checks if move is Kingside Castle
 def checkKCastle(piece,move):
     m = chess.Move.from_uci(piece + move +'')
     return board.is_kingside_castling(m)
@@ -58,6 +65,7 @@ def generate_all_positions():
 def convert_position_matrix():
     pass
 
+#GUI
 class guiMaker:
     g = Tk()
     g.title("Chess Game")
@@ -70,12 +78,12 @@ class guiMaker:
     p = Label(c, image=boardImg)
     c.create_image(300,205,image=boardImg)
     
-    l = Label(g, text='')
-    e = Entry(g)
-    b = Button(g,text='Select',width=7)
+    #Main UI Elements
+    l = Label(g, text='')                       #Text Prompt
+    e = Entry(g)                                #Entry box
+    b = Button(g,text='Select',width=7)         #Button
 
-    #PIECES STUFF
-    #Images
+    #Piece Images
     bBi = ImageTk.PhotoImage(Image.open("ChessPieces/blackBishop.png"))
     wBi = ImageTk.PhotoImage(Image.open("ChessPieces/whiteBishop.png"))
     bPi = ImageTk.PhotoImage(Image.open("ChessPieces/blackPawn.png"))
@@ -89,7 +97,7 @@ class guiMaker:
     bQi = ImageTk.PhotoImage(Image.open("ChessPieces/blackQueen.png"))
     wQi = ImageTk.PhotoImage(Image.open("ChessPieces/whiteQueen.png"))
 
-    #Positions
+    #Positions of each piece
     # -1 -1 means dead
     wR1 = [0,0]
     wK1 = [1,0]
@@ -123,6 +131,7 @@ class guiMaker:
     bP5 = [5,6]
     bP6 = [6,6]
     bP7 = [7,6]
+
     #CanvasPieces
     cwP0 = None #whitepawns
     cwP1 = None
@@ -161,6 +170,7 @@ class guiMaker:
     relLocX = [0.265,0.334,0.4,0.468,0.534,0.603,0.668,0.738] #Stores relx for all piece locations
     relLocY = [0.76,0.67,0.585,0.493,0.4,0.315,0.225,0.138] #Stores rely for all piece locations
 
+    #Extra GUI variables
     promUnit = ''
     recentPromoteInt = 0
     wpromoted = [0,0,0,0,0,0,0,0]
@@ -172,6 +182,7 @@ class guiMaker:
     f = True
     result = [0,0]
 
+    #Kills GUI
     def endfr(self):
         self.g.destroy()
 
@@ -194,6 +205,7 @@ class guiMaker:
         else:
             self.pieceSelect(0)
 
+    #Checks if selected piece is a pawn
     def checkPawn(self):
         numPiece = self.convertPiece()
         if numPiece == self.wP0:
@@ -501,6 +513,7 @@ class guiMaker:
             self.bP7 = newMove
             self.c.coords(self.cbP7, (self.relLocX[self.bP7[0]])*600 ,(self.relLocY[self.bP7[1]])*455)
 
+    #Updates piece image for promoted pawn
     def promImage(self,new):
         p = self.convertPiece()
         if(self.wP0 == p):
@@ -648,6 +661,7 @@ class guiMaker:
             else:
                 self.c.itemconfig(self.cbP7, image = self.bRi)
         
+    #Checks if move is En Passant
     def checkEnpassant(self, m,p):
         b = checkEP(p,m)
         if(b):
@@ -656,7 +670,8 @@ class guiMaker:
             else:
                 self.killUnitAbove()
 
-    def killUnitAbove(self): #kills white units enpassant
+    #Removes pawn above for black En Passant
+    def killUnitAbove(self): 
         newMove = self.convertMove()
         if newMove == self.wP0:
             self.wP0 = [-1,-1]
@@ -683,7 +698,8 @@ class guiMaker:
             self.wP7 = [-1,-1]
             self.c.delete(self.cwP7)
 
-    def killUnitUnder(self): #kills black units enpassant
+    #Removes pawn below for white En Passant
+    def killUnitUnder(self): 
         newMove = self.convertMove()
         newMove[1] -=2
         if newMove == self.bP0:
@@ -847,7 +863,7 @@ class guiMaker:
             self.e.delete(0,'end')
             self.b.config(text='Select',width=7, command=self.checkPiece)
 
-    #Starts promotion prompt if pawn
+    #Starts promotion prompt if pawn, otherwise continue
     def checkMoveList(self):
         self.move = self.e.get()
         p = self.checkPawn()
@@ -856,8 +872,10 @@ class guiMaker:
         else:
             self.checkMove()
 
+    #Reverts promotion image on failed promote
     def undoPromote(self):
         if board.turn == chess.WHITE:
+            self.wpromoted[self.recentPromoteInt] = False
             match self.recentPromoteInt:
                 case 0:
                     self.c.itemconfig(self.cwP0, image = self.wPi)
@@ -884,6 +902,7 @@ class guiMaker:
                     self.c.itemconfig(self.cwP7, image = self.wPi)
                     return
         else:
+            self.bpromoted[self.recentPromoteInt] = False
             match self.recentPromoteInt:
                 case 0:
                     self.c.itemconfig(self.cbP0, image = self.bPi)
@@ -920,7 +939,7 @@ class guiMaker:
         self.e.delete(0,'end')
         self.b.config(text='Select',width=7, command=self.checkMoveList)
 
-    #Initializes all pieces
+    #Initializes all pieces on board
     def placePieces(self):
         #White
         #Pawns
@@ -970,6 +989,7 @@ class guiMaker:
         #King
         self.cbK = self.c.create_image((self.relLocX[self.bK[0]])*600,(self.relLocY[self.bK[1]])*455,image=self.bKi)
 
+    #Declares checkmate and prompts to end game
     def end(self):
         self.l.config(text='Checkmate. Press End to close the game')
         self.e.destroy()
