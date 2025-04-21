@@ -932,7 +932,7 @@ class guiMaker:
     #Requests where to move piece
     def pieceSelect(self, val):
         if val==1:
-            self.l.config(text='Promotion reverted. Please select a valid movement.')
+            self.l.config(text='Move invalid. Please select a valid movement.')
             self.undoPromote()
         else:
             self.l.config(text='Where to move it? Please enter the code (d1, c4, etc.)')
