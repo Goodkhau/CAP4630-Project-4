@@ -4,7 +4,6 @@ import csv
 
 eval_input = []
 eval_output = []
-
 i=0
 with open('top-chess-positions.csv', newline='') as csvfile:
     reader = csv.reader(csvfile)
@@ -32,7 +31,7 @@ np.save('eval_X.npy', eval_X)
 np.save('eval_Y.npy', eval_Y)
 
 print("Process Complete")
-    #fen_vectors.append(Fen.parse())
+
 
 i=0
 mate_input_vectors= []
@@ -47,11 +46,12 @@ with open('mates_part_1.csv', newline='') as csvfile:
         f = FENParser(info[0])
         vector = f.parse()
         #print(vector)
-        mate_num = int(info[1])
+        mate_num = int(info[1])#only contains numbers outside of 0 at least part 1
+        output_num = -1 if mate_num<0 else 1
         #print(mate_num)
 
         mate_input_vectors.append(vector)
-        mate_output.append(mate_num)
+        mate_output.append(output_num)
         i += 1
         if i % 10000== 0:
             print(i/1000000)
