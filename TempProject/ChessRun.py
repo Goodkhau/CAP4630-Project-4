@@ -4,6 +4,7 @@ from tabulate import tabulate
 from fenConversion import*
 import tensorflow as tf
 from tensorflow import keras
+import time
 
 
 def print_board(board):
@@ -75,7 +76,8 @@ def ai_select_move(temp_board, black=True):
     X = np.array(input_list)
 
     moves_index_eval = run_checkmate_model(X)#moves index worth evaluating
-
+    #print('Num of moves that are worth evaluating:')
+    #print(len(moves_index_eval))
     if len(moves_index_eval) > 1:
 
         eval_positions=[]#will contain inputs that are worth evalating
@@ -93,7 +95,7 @@ def ai_select_move(temp_board, black=True):
         best_move = possible_moves[best_move_index]
 
     else:
-        board.push(possible_moves[moves_index_eval[0]])
+        best_move = possible_moves[moves_index_eval[0]]
 
     board.push(best_move)
 
@@ -106,19 +108,25 @@ def run_checkmate_model(X, black=True):
 
     i = 0
     selected_position_indexes = []
+    alternatives = []
 
     if black:
         for index in indexes:
             if index == 1:#forced mate for black preferred
                 selected_position_indexes.append(i)
                 break
-            if index == 0:#append if its not forced mate
+            elif index == 0:#append if its not forced mate
                 selected_position_indexes.append(i)
+            elif index == 2:
+                alternatives.append(i)
 
             i +=1
 
     else:
         print('functionality for white hasnt been implemented yet')
+
+    if len(selected_position_indexes) == 0:#edge case if there are no good moves for black we have to still give it a index to move
+        selected_position_indexes.append(alternatives[0])#so we just choose the first alternative
 
     return selected_position_indexes
 
@@ -161,6 +169,7 @@ while not gameEnd:
 
     else:
         
+        time.sleep(1.5)#time delay so you can actually see what you moved 
         print("Black Has Moved")
         ai_select_move(board)
 
