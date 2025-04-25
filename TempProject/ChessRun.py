@@ -113,7 +113,7 @@ def run_checkmate_model(X, black=True):
     if black:
         for index in indexes:
             if index == 1:#forced mate for black preferred
-                selected_position_indexes.append(i)
+                selected_position_indexes = [i]
                 break
             elif index == 0:#append if its not forced mate
                 selected_position_indexes.append(i)
@@ -153,9 +153,7 @@ checkmate_model = keras.models.load_model("models/mate_model.keras")
 evaluation_model = keras.models.load_model("models/eval_big_model_v2.keras")
 board = chess.Board()
 
-gameEnd = False
-i = 1
-while not gameEnd:
+while True:
 
     print()
     print_board(board)
@@ -178,5 +176,3 @@ while not gameEnd:
         print_board(board)
         print(result)
         break
-
-    i += 1
