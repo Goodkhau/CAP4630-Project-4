@@ -4,13 +4,7 @@ from fenConversion import*
 import tensorflow as tf
 from tensorflow import keras
 import time
-
-## Main model
-class ChessML:
-    def __init__(self):
-        self.board = chess.Board()
-        self.checkmate_model = keras.models.load_model("models/mate_model.keras")
-        self.evaluation_model = keras.models.load_model("models/eval_big_model_v2.keras")
+import ChessMLM
 
 ## This will return a move selected by our ML model from a list of possible moves
 def ai_select_move(black=True):
@@ -178,5 +172,5 @@ def Optional_Engine_Cycle():
 
 ## Only runs if you start file directly
 if __name__ == '__main__':
-    ML = ChessML()
+    ML = ChessMLM.ChessML()
     Optional_Engine_Cycle()
