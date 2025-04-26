@@ -13,10 +13,17 @@ class ChessML:
         self.checkmate_model = keras.models.load_model("models/mate_model.keras")
         self.evaluation_model = keras.models.load_model("models/eval_big_model_v2.keras")
 
+
+    def move(self, selected_piece, selection, promoted_piece):
+        move = chess.Move.from_uci(selected_piece + selection + promoted_piece)
+        if self.board.is_legal(move):
+            self.board.push(move)
+            return True
+        return False
+
     ## This method will select a move by our ML model from a list of possible moves
     ## The move is retained in the chess.Board() object.
     def ai_select_move(self, black=True):
-
         possible_moves = list(self.board.legal_moves)
         temp_board = self.board
 
@@ -30,9 +37,8 @@ class ChessML:
 
         X = np.array(input_list)
 
-        moves_index_eval = self.run_checkmate_model(X)  # moves index worth evaluating
-        # print('Num of moves that are worth evaluating:')
-        # print(len(moves_index_eval))
+        ## Integer of number of moves worth evaluation
+        moves_index_eval = self.run_checkmate_model(X)
         if len(moves_index_eval) > 1:
 
             eval_positions = []  # will contain inputs that are worth evalating

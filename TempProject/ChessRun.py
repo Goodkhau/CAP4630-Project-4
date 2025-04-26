@@ -45,8 +45,6 @@ def make_move(from_move):
 
         promoted_piece = ''
         rank = int(move_to[1])
-
-
         if rank == 1 or rank == 8:
             square = chess.parse_square(from_move)
             piece = ML.board.piece_at(square)
@@ -54,9 +52,7 @@ def make_move(from_move):
                 print('Type "q" for Queen, "r" for Rook, "b" for Bishop, "n" for Knight')
                 promoted_piece = input('Promotion Piece: ')
 
-        move = chess.Move.from_uci(from_move + move_to + promoted_piece)
-        if ML.board.is_legal(move):
-            ML.board.push(move)
+        if ML.move(from_move, move_to, promoted_piece):
             break
         else:
             print('Choose a LEGAL Position')
