@@ -6,46 +6,6 @@ from tensorflow import keras
 import time
 import ChessMLM
 
-## This will return a move selected by our ML model from a list of possible moves
-def ai_select_move(black=True):
-
-    possible_moves = list(ML.board.legal_moves)
-    temp_board = ML.board
-
-    input_list = []
-    for move in possible_moves:
-        temp_board.push(move)
-        fen = ML.board.fen()
-        input = FENParser(fen)
-        input_list.append(input.parse())
-        temp_board.pop()
-
-    X = np.array(input_list)
-
-    moves_index_eval = run_checkmate_model(X)#moves index worth evaluating
-    #print('Num of moves that are worth evaluating:')
-    #print(len(moves_index_eval))
-    if len(moves_index_eval) > 1:
-
-        eval_positions=[]#will contain inputs that are worth evalating
-        for index in moves_index_eval:
-
-            move = possible_moves[index]#move worth evaluating
-            temp_board.push(move)
-            fen = ML.board.fen()
-            input = FENParser(fen)
-            eval_positions.append(input.parse())
-            temp_board.pop()
-
-        index_of_eval_positions = run_eval_model(np.array(eval_positions))#returns index of eval_positions which is the same index for a position as moves_index_eval
-        best_move_index = moves_index_eval[index_of_eval_positions]#gets index of move using moves_index_eval
-        best_move = possible_moves[best_move_index]
-
-    else:
-        best_move = possible_moves[moves_index_eval[0]]
-
-    ML.board.push(best_move)
-
 
 def print_board():
     start = "\033[1;93m"
@@ -101,54 +61,6 @@ def make_move(from_move):
         else:
             print('Choose a LEGAL Position')
 
-# returns a list of possible good moves to further evaluate, specifically returning the indexes of eval_positions that are worth evaluating
-#and these same indexes correspond to the moves_index_eval index, which can then be used to access the moves[using the index]
-#moves_index_eval[] and eval_position[]  a single index here corresponds to each other for example eval_position[2] is the evaluation position of moves_index_eval[2]
-def run_checkmate_model(X, black=True):
-    Y = ML.checkmate_model.predict_on_batch(X)
-    indexes = np.argmax(Y, axis=1) # 1 if forced mate for black, 2 if forced mate for white, 0 no forced mate
-
-    i = 0
-    selected_position_indexes = []
-    alternatives = []
-
-    if black:
-        for index in indexes:
-            if index == 1:#forced mate for black preferred
-                selected_position_indexes = [i]
-                break
-            elif index == 0:#append if its not forced mate
-                selected_position_indexes.append(i)
-            elif index == 2:
-                alternatives.append(i)
-
-            i +=1
-
-    else:
-        print('functionality for white hasnt been implemented yet')
-
-    if len(selected_position_indexes) == 0:#edge case if there are no good moves for black we have to still give it a index to move
-        selected_position_indexes.append(alternatives[0])#so we just choose the first alternative
-
-    return selected_position_indexes
-
-def run_eval_model(X):
-
-    Y = ML.evaluation_model.predict_on_batch(X)
-    ## Returns tensor array (3, 1)
-
-    i = 0
-    centipawn = Y[0]
-    pos_index = 0
-
-    for pred_value in Y:
-        if pred_value[0] < centipawn:
-            centipawn = pred_value[0]
-            pos_index = i
-
-        i +=1
-
-    return pos_index
 
 ## Commandline program, **only for debugging and testing
 def Optional_Engine_Cycle():
@@ -163,7 +75,7 @@ def Optional_Engine_Cycle():
         else:
             time.sleep(1.5)  # time delay so you can actually see what you moved
             print("Black Has Moved")
-            ai_select_move()
+            ML.ai_select_move()
         result = ML.board.result()
         if result != "*":
             print_board()
