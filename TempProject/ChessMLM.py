@@ -4,7 +4,6 @@ from fenConversion import*
 import tensorflow as tf
 from tensorflow import keras
 import time
-import ChessMLM
 
 
 class ChessML:
