@@ -2,29 +2,12 @@ import chess
 from tabulate import tabulate
 from tkinter import *
 from PIL import ImageTk, Image
-
-#Prints board in command line
-def print_board(board):
-    start = "\033[1;93m"
-    end = "\033[0m"
-    header = [' ', start + 'a' + end, start + 'b' + end, start + 'c' + end, start + 'd' + end, start + 'e' + end, start + 'f' + end, start + 'g' + end, start + 'h' + end]
-
-    rows_info = []
-    for row in range(8, 0, -1):
-        row_info = [start + str(row) + end]
-        for col in range(8):
-            square = chess.square(col, row - 1)
-            piece = board.piece_at(square)
-            row_info.append(piece.symbol() if piece else ' ')
-        rows_info.append(row_info)
-
-    table = tabulate(rows_info, header, tablefmt="heavy_grid")
-    print(table)
+import ChessMLM
 
 #Select Piece
 def select_piece(piece):
     square = chess.parse_square(piece)
-    piece_moves = [move for move in board.legal_moves if move.from_square == square]
+    piece_moves = [move for move in ML.board.legal_moves if move.from_square == square]
 
     if piece_moves:
         return 0
@@ -34,7 +17,7 @@ def select_piece(piece):
 #Asks board if move is valid
 def check_move(moveLoc, piece, prom):
     move = chess.Move.from_uci(piece + moveLoc + prom)
-    if board.is_legal(move):
+    if ML.board.is_legal(move):
         return 0
     else:
         return 1
@@ -42,22 +25,22 @@ def check_move(moveLoc, piece, prom):
 #Confirms move on board
 def move(moveLoc, piece, prom):
     move = chess.Move.from_uci(piece + moveLoc + prom)
-    board.push(move)
+    ML.board.push(move)
 
 #Checks if move is En Passant
 def checkEP(piece, move):
     m = chess.Move.from_uci(piece + move +'')
-    return board.is_en_passant(m)
+    return ML.board.is_en_passant(m)
 
 #Checks if move is Queenside Castle
 def checkQCastle(piece,move):
     m = chess.Move.from_uci(piece + move +'')
-    return board.is_queenside_castling(m)
+    return ML.board.is_queenside_castling(m)
 
 #Checks if move is Kingside Castle
 def checkKCastle(piece,move):
     m = chess.Move.from_uci(piece + move +'')
-    return board.is_kingside_castling(m)
+    return ML.board.is_kingside_castling(m)
 
 def generate_all_positions():
     pass
@@ -665,7 +648,7 @@ class guiMaker:
     def checkEnpassant(self, m,p):
         b = checkEP(p,m)
         if(b):
-            if board.turn == chess.WHITE:
+            if ML.board.turn == chess.WHITE:
                 self.killUnitUnder()
             else:
                 self.killUnitAbove()
@@ -760,7 +743,7 @@ class guiMaker:
 
     #Instruction list once move is confirmed
     def moveGui(self):
-        if(board.turn == chess.WHITE):
+        if(ML.board.turn == chess.WHITE):
             t = 1
         else:
             t = 2
@@ -786,7 +769,7 @@ class guiMaker:
             else:
                 self.bQCastleMove(newMove)
                 self.movePiece(newMove)
-        if board.turn == chess.WHITE:
+        if ML.board.turn == chess.WHITE:
             self.statePickPiece()
         else:
             self.BLACKstatePickPiece()
@@ -820,7 +803,7 @@ class guiMaker:
         pNum = self.getPawnNum()
         self.recentPromoteInt = pNum
         if (rank == 1 or rank == 8):
-            if board.turn == chess.WHITE:
+            if ML.board.turn == chess.WHITE:
                 if(self.wpromoted[pNum] == False):
                     self.wpromoted[pNum] = True
                     self.l.config(text='Which type to promote to? (b/n/r/q)')
@@ -852,7 +835,7 @@ class guiMaker:
 
     #Black turn start
     def BLACKstatePickPiece(self):
-        res = board.result()
+        res = ML.board.result()
         if res != '*':
             self.gameEnd = True
         if (self.gameEnd == True):
@@ -874,7 +857,7 @@ class guiMaker:
 
     #Reverts promotion image on failed promote
     def undoPromote(self):
-        if board.turn == chess.WHITE:
+        if ML.board.turn == chess.WHITE:
             self.wpromoted[self.recentPromoteInt] = False
             match self.recentPromoteInt:
                 case 0:
@@ -998,7 +981,7 @@ class guiMaker:
 
     #White turn start
     def statePickPiece(self):
-        res = board.result()
+        res = ML.board.result()
         if res != '*':
             self.gameEnd = True
         if (self.gameEnd == True):
@@ -1015,5 +998,7 @@ class guiMaker:
                 self.f = False
                 self.run()
 
-board = chess.Board()
-g = guiMaker(True)
+
+if __name__ == '__main__':
+    ML = ChessMLM.ChessML()
+    guiMaker(True)

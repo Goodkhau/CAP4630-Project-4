@@ -6,7 +6,7 @@ from tensorflow import keras
 import time
 import ChessMLM
 
-
+## Print board to command line
 def print_board():
     start = "\033[1;93m"
     end = "\033[0m"
@@ -24,8 +24,8 @@ def print_board():
     table = tabulate(rows_info, header, tablefmt="heavy_grid")
     print(table)
 
+## Selects piece to move
 def select_piece():
-
     while True:
         piece = input('Choose Piece to move: ')
         square = chess.parse_square(piece)
@@ -38,7 +38,7 @@ def select_piece():
 
     return piece
 
-
+## Prompts and gets user's move
 def make_move(from_move):
     while True:
         move_to = input('Position to Move to: ')
@@ -71,7 +71,9 @@ def Optional_Engine_Cycle():
         else:
             time.sleep(1.5)  # time delay so you can actually see what you moved
             print("Black Has Moved")
-            ML.ai_select_move()
+            m = ML.ai_select_move()
+            print(m)
+            ML.board.push(m)
         result = ML.board.result()
         if result != "*":
             print_board()

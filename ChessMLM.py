@@ -57,7 +57,7 @@ class ChessML:
         else:
             best_move = possible_moves[moves_index_eval[0]]
 
-        self.board.push(best_move)
+        return best_move
 
     ## Returns a list of "good" moves
     def run_checkmate_model(self, X, black=True):
