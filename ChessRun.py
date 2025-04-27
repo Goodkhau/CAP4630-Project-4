@@ -770,7 +770,7 @@ class guiMaker:
                 self.bQCastleMove(newMove)
                 self.movePiece(newMove)
         if ML.board.turn == chess.WHITE:
-            self.statePickPiece()
+            self.afterBlack()
         else:
             self.BLACKstatePickPiece()
 
@@ -795,6 +795,13 @@ class guiMaker:
             return 6
         elif (p == self.wP7) or (p == self.bP7):
             return 7
+
+    #Waiting period before white takes their move
+    def afterBlack(self):
+        self.l.config(text='Black has moved. Click the button to take your turn')
+        self.e.destroy()
+        self.b.config(text='Continue',width=7, command=self.statePickPiece())
+        self.b.place(relx=.5, rely=0.95,anchor='center')
 
     #Promotion prompt
     def promote(self):
@@ -841,11 +848,21 @@ class guiMaker:
         if (self.gameEnd == True):
             self.end()
         else:
-            self.promoted_piece=''
-            self.l.config(text='BLACK TURN: Which piece to move? Please enter the code (d1, c4, etc.)')
-            self.e.delete(0,'end')
-            self.b.config(text='Select',width=7, command=self.checkPiece)
+            m = str(ML.ai_select_move())
+            if len(m) == 4:
+                self.promoted_piece=''
+            else:
+                self.promoted_piece=m[len(m)-1]
+            self.piece = m[0:1]
+            self.move = m[2:3]
 
+            if self.promoted_piece == '':
+                self.moveGui()
+            else:
+                self.promImage(self.promoted_piece)
+                self.moveGui()
+            #black > if promotion is real, promote path > movegui > next turn
+            
     #Starts promotion prompt if pawn, otherwise continue
     def checkMoveList(self):
         self.move = self.e.get()
