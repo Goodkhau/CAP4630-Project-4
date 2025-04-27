@@ -1,9 +1,7 @@
 import chess
-from tabulate import tabulate
 from fenConversion import*
 import tensorflow as tf
 from tensorflow import keras
-import time
 
 
 class ChessML:
@@ -57,7 +55,7 @@ class ChessML:
         else:
             best_move = possible_moves[moves_index_eval[0]]
 
-        return best_move
+        self.board.push(best_move)
 
     ## Returns a list of "good" moves
     def run_checkmate_model(self, X, black=True):
